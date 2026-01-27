@@ -3,6 +3,7 @@ package com.mahshad.yolo
 import android.content.Context
 import android.content.res.AssetManager
 import android.graphics.Bitmap
+import android.graphics.RectF
 import android.util.Log
 import androidx.core.graphics.scale
 import org.tensorflow.lite.Interpreter
@@ -13,9 +14,11 @@ import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 
 class Classifier(private val context: Context) {
-    private lateinit var interpreter: Interpreter
+    private var interpreter: Interpreter
     private var inputImageWidth: Int
     private var inputImageHeight: Int
+    val detections = mutableListOf<Detection>()
+    val confidenceThreshold = 0.7f
 
     init {
         val assetManager = context.assets
@@ -65,33 +68,49 @@ class Classifier(private val context: Context) {
         return buffer
     }
 
-    fun closeInterpreter() {
+    private fun closeInterpreter() {
         this.interpreter.close()
     }
 
-    fun classify(bitmap: Bitmap): String {
+    fun classify(bitmap: Bitmap) {
         val resizedImage = bitmap.scale(inputImageWidth, inputImageHeight)
         val byteBuffer = bitmapToFloatBufferNHWC(resizedImage)
-        val outShape = interpreter.getOutputTensor(0).shape() // e.g. [1, 25200, 85]
+        val outShape = interpreter.getOutputTensor(0).shape()
         val n = outShape[1]
         val c = outShape[2]
         val output = Array(outShape[0]) { Array(n) { FloatArray(c) } }
         interpreter.run(byteBuffer, output)
         val result = output[0]
-        // Find the index of the box with the highest confidence
-        val maxIndex: Int = result.indices.maxByOrNull { result[it][4] } ?: -1
+        for (i in 0 until result.size) {
+            val confidence = result[i][4]
 
-// Get the actual confidence value
-        val confidence = result[maxIndex][4]
-
-// Find which class (out of the 80+ classes) has the highest score for THAT box
-// Assuming classes start at index 5
-        val classScores = result[maxIndex].sliceArray(5 until c)
-        val classId = classScores.indices.maxByOrNull { classScores[it] } ?: -1
-        val classConfidence = classScores[classId]
-
-        val resultString = "Box Index: $maxIndex\nClass ID: $classId\nConfidence: $classConfidence"
-        Log.d("TAG", resultString)
-        return resultString
+            if (confidence > confidenceThreshold) {
+                val cx = result[i][0]
+                val cy = result[i][1]
+                val w = result[i][2]
+                val h = result[i][3]
+                val left = cx - (w / 2)
+                val top = cy - (h / 2)
+                val right = cx + (w / 2)
+                val bottom = cy + (h / 2)
+                val box = RectF(
+                    left * bitmap.width,
+                    top * bitmap.height,
+                    right * bitmap.width,
+                    bottom * bitmap.height
+                )
+                val classScores = result[i].sliceArray(5 until c)
+                val classId = classScores.indices.maxByOrNull { classScores[it] } ?: -1
+                detections.add(Detection(box, classId, confidence))
+            }
+        }
+        Log.d("TAG", "classify: detection result ${detections.toString()} ")
+        closeInterpreter()
     }
 }
+
+data class Detection(
+    val boundingBox: RectF,
+    val classId: Int,
+    val confidence: Float
+)
