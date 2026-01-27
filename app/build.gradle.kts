@@ -4,7 +4,10 @@ plugins {
 }
 
 android {
-    namespace = "com.lyft.yolo"
+    namespace = "com.mahshad.yolo"
+    androidResources {
+        noCompress.add("tflite")
+    }
     compileSdk {
         version = release(36)
     }
@@ -46,6 +49,9 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    // TensorFlow
+    implementation(libs.tensorflow.lite)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

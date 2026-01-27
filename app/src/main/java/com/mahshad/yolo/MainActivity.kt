@@ -1,5 +1,7 @@
-package com.lyft.yolo
+package com.mahshad.yolo
 
+import android.graphics.Bitmap
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,12 +13,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.lyft.yolo.ui.theme.YoloTheme
+import com.mahshad.yolo.ui.theme.YoloTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val bitmap = Bitmap.createBitmap(640, 640, Bitmap.Config.ARGB_8888)
+        bitmap.eraseColor(Color.GRAY)
+
+        Classifier(this).classify(bitmap)
         setContent {
             YoloTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->

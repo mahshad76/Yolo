@@ -1,4 +1,4 @@
-package com.lyft.yolo.ui.theme
+package com.mahshad.yolo.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

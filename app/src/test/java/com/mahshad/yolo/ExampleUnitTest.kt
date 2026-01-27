@@ -1,4 +1,4 @@
-package com.lyft.yolo
+package com.mahshad.yolo
 
 import org.junit.Test
 
