@@ -1,7 +1,6 @@
 package com.mahshad.yolo
 
-import android.graphics.Bitmap
-import android.graphics.Color
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -19,9 +18,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val bitmap = Bitmap.createBitmap(640, 640, Bitmap.Config.ARGB_8888)
-        bitmap.eraseColor(Color.GRAY)
-
+        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.`object`)
         Classifier(this).classify(bitmap)
         setContent {
             YoloTheme {

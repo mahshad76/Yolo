@@ -18,7 +18,7 @@ class Classifier(private val context: Context) {
     private var inputImageWidth: Int
     private var inputImageHeight: Int
     val detections = mutableListOf<Detection>()
-    val confidenceThreshold = 0.7f
+    val confidenceThreshold = 0.5f
 
     init {
         val assetManager = context.assets
