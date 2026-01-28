@@ -1,6 +1,5 @@
 package com.mahshad.yolo
 
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,21 +11,23 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.mahshad.yolo.ui.CameraPreviewScreen
 import com.mahshad.yolo.ui.theme.YoloTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.bus)
-        Classifier(this).classify(bitmap)
+//        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.bus)
+//        Classifier(this).classify(bitmap)
         setContent {
             YoloTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+//                    Greeting(
+//                        name = "Android",
+//                        modifier = Modifier.padding(innerPadding)
+//                    )
+                    CameraPreviewScreen(modifier = Modifier.padding(innerPadding))
                 }
             }
         }
