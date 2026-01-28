@@ -18,7 +18,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.`object`)
+        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.bus)
         Classifier(this).classify(bitmap)
         setContent {
             YoloTheme {

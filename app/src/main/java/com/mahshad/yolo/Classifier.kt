@@ -72,45 +72,130 @@ class Classifier(private val context: Context) {
         this.interpreter.close()
     }
 
-    fun classify(bitmap: Bitmap) {
-        val resizedImage = bitmap.scale(inputImageWidth, inputImageHeight)
-        val byteBuffer = bitmapToFloatBufferNHWC(resizedImage)
-        val outShape = interpreter.getOutputTensor(0).shape()
-        val n = outShape[1]
-        val c = outShape[2]
-        val output = Array(outShape[0]) { Array(n) { FloatArray(c) } }
-        interpreter.run(byteBuffer, output)
-        val result = output[0]
-        for (i in 0 until result.size) {
-            val confidence = result[i][4]
+    fun iou(a: RectF, b: RectF): Float {
+        val left = maxOf(a.left, b.left)
+        val top = maxOf(a.top, b.top)
+        val right = minOf(a.right, b.right)
+        val bottom = minOf(a.bottom, b.bottom)
 
-            if (confidence > confidenceThreshold) {
-                val cx = result[i][0]
-                val cy = result[i][1]
-                val w = result[i][2]
-                val h = result[i][3]
-                val left = cx - (w / 2)
-                val top = cy - (h / 2)
-                val right = cx + (w / 2)
-                val bottom = cy + (h / 2)
-                val box = RectF(
-                    left * bitmap.width,
-                    top * bitmap.height,
-                    right * bitmap.width,
-                    bottom * bitmap.height
-                )
-                val classScores = result[i].sliceArray(5 until c)
-                val classId = classScores.indices.maxByOrNull { classScores[it] } ?: -1
-                detections.add(Detection(box, classId, confidence))
+        val interW = (right - left).coerceAtLeast(0f)
+        val interH = (bottom - top).coerceAtLeast(0f)
+        val interArea = interW * interH
+
+        val areaA = (a.right - a.left).coerceAtLeast(0f) * (a.bottom - a.top).coerceAtLeast(0f)
+        val areaB = (b.right - b.left).coerceAtLeast(0f) * (b.bottom - b.top).coerceAtLeast(0f)
+        val union = areaA + areaB - interArea
+        return if (union <= 0f) 0f else interArea / union
+    }
+
+    fun nonMaxSuppression(
+        dets: List<Detection>,
+        iouThreshold: Float = 0.45f
+    ): List<Detection> {
+        val sorted = dets.sortedByDescending { it.confidence }.toMutableList()
+        val kept = mutableListOf<Detection>()
+
+        while (sorted.isNotEmpty()) {
+            val best = sorted.removeAt(0)
+            kept.add(best)
+
+            val it = sorted.iterator()
+            while (it.hasNext()) {
+                val d = it.next()
+                // class-wise NMS:
+                if (d.classId == best.classId && iou(d.boxN, best.boxN) > iouThreshold) {
+                    it.remove()
+                }
             }
         }
-        Log.d("TAG", "classify: detection result ${detections.toString()} ")
-        closeInterpreter()
+        return kept
     }
+
+
+    fun classify(bitmap: Bitmap): List<Detection> {
+        val detections = mutableListOf<Detection>()
+
+        // 1) Preprocess
+        val resized = bitmap.scale(inputImageWidth, inputImageHeight)
+        val input = bitmapToFloatBufferNHWC(resized)
+
+        // 2) Run inference
+        val outShape = interpreter.getOutputTensor(0).shape() // [1, 25200, 85]
+        val n = outShape[1]
+        val c = outShape[2]
+        val output = Array(1) { Array(n) { FloatArray(c) } }
+
+        interpreter.run(input, output)
+        val result = output[0]
+
+        val scoreThreshold = 0.15f
+
+        var maxObj = 0f
+        var maxProb = 0f
+        var maxScore = 0f
+
+        for (row in result) {
+            val obj = row[4]
+            if (obj > maxObj) maxObj = obj
+            if (obj <= 0f) continue
+
+            // best class
+            var bestClass = -1
+            var bestProb = 0f
+            for (cls in 0 until (c - 5)) {
+                val p = row[5 + cls]
+                if (p > bestProb) {
+                    bestProb = p
+                    bestClass = cls
+                }
+            }
+            if (bestProb > maxProb) maxProb = bestProb
+
+            val score = obj * bestProb
+            if (score > maxScore) maxScore = score
+            if (score < scoreThreshold) continue
+
+            // YOLOv5 outputs NORMALIZED cx,cy,w,h (0..1)
+            val cx = row[0]
+            val cy = row[1]
+            val w = row[2]
+            val h = row[3]
+
+            val left = (cx - w / 2f).coerceIn(0f, 1f)
+            val top = (cy - h / 2f).coerceIn(0f, 1f)
+            val right = (cx + w / 2f).coerceIn(0f, 1f)
+            val bottom = (cy + h / 2f).coerceIn(0f, 1f)
+
+            val boxN = RectF(left, top, right, bottom)
+            detections.add(Detection(boxN, bestClass, score))
+        }
+
+        // 3) Sort + NMS
+        val sorted = detections.sortedByDescending { it.confidence }
+        val topK = sorted.take(200)
+
+        val final = nonMaxSuppression(topK, 0.45f)
+            .sortedByDescending { it.confidence }
+
+//        Log.d(
+//            "YOLO",
+//            "decode stats: classId=${d.classId} maxObj=$maxObj maxProb=$maxProb maxScore=$maxScore raw=${detections.size} final=${final.size}"
+//        )
+        for (d in final) {
+            Log.d(
+                "YOLO",
+                "DETECTION: classId=${d.classId}, confidence=${d.confidence}, boxN=${d.boxN}"
+            )
+        }
+
+        return final
+    }
+
+
 }
 
 data class Detection(
-    val boundingBox: RectF,
+    val boxN: RectF,      // normalized 0..1
     val classId: Int,
     val confidence: Float
 )
