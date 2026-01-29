@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Yolo</string>
     <string name="camera_permission">Hi there! We need your camera to work our magic!\nGrant us permission and let\'s get this app started!</string>
+    <string name="enable_the_camera">Enable the Camera!</string>
 </resources>

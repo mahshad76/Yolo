@@ -2,7 +2,6 @@ package com.mahshad.yolo.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
@@ -22,13 +21,14 @@ import com.mahshad.yolo.R
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun CameraPreviewScreen(modifier: Modifier = Modifier) {
-    val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
+    val cameraPermissionState = rememberPermissionState(
+        android.Manifest.permission.CAMERA
+    )
     if (cameraPermissionState.status.isGranted) {
         CameraPreviewContent(modifier)
     } else {
         Column(
             modifier = modifier
-                .fillMaxSize()
                 .wrapContentSize()
                 .widthIn(max = 480.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -37,7 +37,7 @@ fun CameraPreviewScreen(modifier: Modifier = Modifier) {
             Text(textToShow, textAlign = TextAlign.Center)
             Spacer(Modifier.height(16.dp))
             Button(onClick = { cameraPermissionState.launchPermissionRequest() }) {
-                Text("Enable the Camera!")
+                Text(stringResource(R.string.enable_the_camera))
             }
         }
     }
