@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
@@ -45,4 +46,5 @@ fun CameraPreviewScreen(modifier: Modifier = Modifier) {
 
 @Composable
 private fun CameraPreviewContent(modifier: Modifier = Modifier) {
+    AndroidView()
 }
