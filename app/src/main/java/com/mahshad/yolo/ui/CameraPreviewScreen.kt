@@ -1,10 +1,12 @@
 package com.mahshad.yolo.ui
 
 import android.os.Build
-import android.view.Surface
+import android.util.Log
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
+import androidx.camera.core.CameraSelector
 import androidx.camera.core.SurfaceRequest
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +18,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -23,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -41,7 +45,26 @@ fun CameraPreviewScreen(
     val cameraPermissionState = rememberPermissionState(
         android.Manifest.permission.CAMERA
     )
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    val context = LocalContext.current
     if (cameraPermissionState.status.isGranted) {
+        LaunchedEffect(Unit) {
+            val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
+            cameraProviderFuture.addListener({
+                val cameraProvider = cameraProviderFuture.get()
+                try {
+                    cameraProvider.unbindAll()
+                    cameraProvider.bindToLifecycle(
+                        lifecycleOwner,
+                        CameraSelector.DEFAULT_BACK_CAMERA,
+                        viewModel.cameraPreviewUseCase,
+                        viewModel.imageAnalysis
+                    )
+                } catch (e: Exception) {
+                    Log.e("CameraX", "Binding failed", e)
+                }
+            }, ContextCompat.getMainExecutor(context))
+        }
         CameraPreviewContent(surfaceRequest.value, modifier)
     } else {
         Column(
@@ -77,12 +100,11 @@ private fun CameraPreviewContent(surfaceRequest: SurfaceRequest?, modifier: Modi
                 },
                 modifier = Modifier.fillMaxSize(),
                 update = { previewView ->
-                    request.provideSurface(
-                        previewView.surfaceProvider as Surface,
-                        context.mainExecutor
-                    ) {
-                        // Handle result here if needed
-                    }
+                    // We get the surface provider from the view
+                    val surfaceProvider = previewView.surfaceProvider
+
+                    // We tell the provider to give us a surface, and we pass that to the request
+                    surfaceProvider.onSurfaceRequested(request)
                 }
             )
         }

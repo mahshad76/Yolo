@@ -17,7 +17,7 @@ class CameraPreviewScreenViewModel() : ViewModel() {
         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
         .build()
 
-    private val cameraPreviewUseCase = Preview.Builder().build().apply {
+    val cameraPreviewUseCase = Preview.Builder().build().apply {
         setSurfaceProvider { newSurfaceRequest ->
             _surfaceRequest.update { newSurfaceRequest }
         }
