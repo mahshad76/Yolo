@@ -32,6 +32,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import com.mahshad.yolo.ObjectDetectorAnalyzer
 import com.mahshad.yolo.R
 
 @RequiresApi(Build.VERSION_CODES.P)
@@ -64,6 +65,7 @@ fun CameraPreviewScreen(
                     Log.e("CameraX", "Binding failed", e)
                 }
             }, ContextCompat.getMainExecutor(context))
+            viewModel.setAnalyzer(ObjectDetectorAnalyzer())
         }
         CameraPreviewContent(surfaceRequest.value, modifier)
     } else {
