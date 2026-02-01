@@ -5,8 +5,12 @@ import androidx.annotation.OptIn
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class ObjectDetectorAnalyzer() : ImageAnalysis.Analyzer {
+@Singleton
+class ObjectDetectorAnalyzer @Inject constructor(private val classifier: Classifier) :
+    ImageAnalysis.Analyzer {
     @OptIn(ExperimentalGetImage::class)
     override fun analyze(imageProxy: ImageProxy) {
         // 1. Get the actual media image
@@ -14,6 +18,7 @@ class ObjectDetectorAnalyzer() : ImageAnalysis.Analyzer {
         if (mediaImage != null) {
             // 2. This is where you'd convert mediaImage to a TensorImage for YOLO
             // For now, let's just log that we are receiving frames
+            classifier.classify(imageProxy.toBitmap())
             Log.d(
                 "Analyzer",
                 "Image format: ${imageProxy.format}, Size: ${imageProxy.width}x${imageProxy.height}"

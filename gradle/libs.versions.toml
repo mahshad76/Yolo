@@ -7,14 +7,12 @@ espressoCore = "3.7.0"
 lifecycleRuntimeCompose = "2.10.0"
 lifecycleRuntimeKtx = "2.6.1"
 activityCompose = "1.8.0"
-# Set to 2.0.21 for better compatibility with AGP 8.x
 composeBom = "2024.09.00"
 tensorflowLite = "2.17.0"
 camerax = "1.5.0-alpha06"
 accompanist = "0.37.2"
 cameraView = "1.5.3"
 kotlin = "2.0.21"
-# Use exactly this KSP version for 2.0.21
 ksp = "2.0.21-1.0.26"
 hilt = "2.52"
 

@@ -6,14 +6,18 @@ import android.graphics.Bitmap
 import android.graphics.RectF
 import android.util.Log
 import androidx.core.graphics.scale
+import dagger.hilt.android.qualifiers.ApplicationContext
 import org.tensorflow.lite.Interpreter
 import java.io.FileInputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class Classifier(private val context: Context) {
+@Singleton
+class Classifier @Inject constructor(@ApplicationContext private val context: Context) {
     private var interpreter: Interpreter
     private var inputImageWidth: Int
     private var inputImageHeight: Int

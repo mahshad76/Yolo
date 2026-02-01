@@ -4,12 +4,19 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
 import androidx.lifecycle.ViewModel
+import com.mahshad.yolo.ObjectDetectorAnalyzer
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import java.util.concurrent.Executors
+import javax.inject.Inject
 
-class CameraPreviewScreenViewModel() : ViewModel() {
+@HiltViewModel
+class CameraPreviewScreenViewModel @Inject constructor(
+    private val objectDetectorAnalyzer: ObjectDetectorAnalyzer
+) :
+    ViewModel() {
     private val _surfaceRequest = MutableStateFlow<SurfaceRequest?>(null)
     val surfaceRequest: StateFlow<SurfaceRequest?> = _surfaceRequest
 
@@ -23,7 +30,7 @@ class CameraPreviewScreenViewModel() : ViewModel() {
         }
     }
 
-    fun setAnalyzer(analyzer: ImageAnalysis.Analyzer) {
-        imageAnalysis.setAnalyzer(Executors.newSingleThreadExecutor(), analyzer)
+    fun setAnalyzer() {
+        imageAnalysis.setAnalyzer(Executors.newSingleThreadExecutor(), objectDetectorAnalyzer)
     }
 }

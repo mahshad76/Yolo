@@ -27,19 +27,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
-import com.mahshad.yolo.ObjectDetectorAnalyzer
 import com.mahshad.yolo.R
 
 @RequiresApi(Build.VERSION_CODES.P)
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun CameraPreviewScreen(
-    viewModel: CameraPreviewScreenViewModel = viewModel(),
+    viewModel: CameraPreviewScreenViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
     val surfaceRequest = viewModel.surfaceRequest.collectAsStateWithLifecycle()
@@ -65,7 +64,7 @@ fun CameraPreviewScreen(
                     Log.e("CameraX", "Binding failed", e)
                 }
             }, ContextCompat.getMainExecutor(context))
-            viewModel.setAnalyzer(ObjectDetectorAnalyzer())
+            viewModel.setAnalyzer()
         }
         CameraPreviewContent(surfaceRequest.value, modifier)
     } else {
@@ -87,7 +86,10 @@ fun CameraPreviewScreen(
 
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
-private fun CameraPreviewContent(surfaceRequest: SurfaceRequest?, modifier: Modifier = Modifier) {
+private fun CameraPreviewContent(
+    surfaceRequest: SurfaceRequest?,
+    modifier: Modifier = Modifier
+) {
     val context = LocalContext.current
     Box(modifier = modifier.fillMaxSize()) {
         surfaceRequest?.let { request ->
