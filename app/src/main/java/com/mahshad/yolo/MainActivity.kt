@@ -9,10 +9,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.mahshad.yolo.ui.CameraPreviewScreen
 import com.mahshad.yolo.ui.theme.YoloTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -23,8 +20,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-//        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.bus)
-//        Classifier(this).classify(bitmap)
         setContent {
             YoloTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -32,21 +27,5 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    YoloTheme {
-        Greeting("Android")
     }
 }

@@ -104,10 +104,7 @@ private fun CameraPreviewContent(
                 },
                 modifier = Modifier.fillMaxSize(),
                 update = { previewView ->
-                    // We get the surface provider from the view
                     val surfaceProvider = previewView.surfaceProvider
-
-                    // We tell the provider to give us a surface, and we pass that to the request
                     surfaceProvider.onSurfaceRequested(request)
                 }
             )
