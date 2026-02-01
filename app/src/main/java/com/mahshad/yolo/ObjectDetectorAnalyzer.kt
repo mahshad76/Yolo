@@ -11,7 +11,6 @@ class ObjectDetectorAnalyzer() : ImageAnalysis.Analyzer {
     override fun analyze(imageProxy: ImageProxy) {
         // 1. Get the actual media image
         val mediaImage = imageProxy.image
-
         if (mediaImage != null) {
             // 2. This is where you'd convert mediaImage to a TensorImage for YOLO
             // For now, let's just log that we are receiving frames

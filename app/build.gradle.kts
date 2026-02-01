@@ -1,6 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
@@ -32,11 +35,25 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
         compose = true
+    }
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+    configurations.all {
+        resolutionStrategy {
+            force("org.jetbrains.kotlin:kotlin-stdlib:2.0.21")
+            force("org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.21")
+            force("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.21")
+            force("org.jetbrains.kotlin:kotlin-stdlib:2.0.21")
+            // Add these to ensure coroutines don't pull in Kotlin 2.1 metadata
+            force("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
+            force("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+        }
     }
 }
 
@@ -54,6 +71,12 @@ dependencies {
 
     // TensorFlow
     implementation(libs.tensorflow.lite)
+
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+
+    // For Compose ViewModel integration
+    implementation(libs.hilt.navigation.compose)
 
     // CameraX
     implementation(libs.androidx.camera.core)

@@ -15,7 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.mahshad.yolo.ui.CameraPreviewScreen
 import com.mahshad.yolo.ui.theme.YoloTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,10 +28,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             YoloTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-//                    Greeting(
-//                        name = "Android",
-//                        modifier = Modifier.padding(innerPadding)
-//                    )
                     CameraPreviewScreen(modifier = Modifier.padding(innerPadding))
                 }
             }
