@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.RectF
 import android.util.Log
 import androidx.core.graphics.scale
+import com.mahshad.yolo.ui.model.Detection
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.tensorflow.lite.Interpreter
 import java.io.FileInputStream
@@ -165,8 +166,3 @@ class Classifier @Inject constructor(@ApplicationContext private val context: Co
     }
 }
 
-data class Detection(
-    val boxN: RectF,
-    val classId: Int,
-    val confidence: Float
-)
