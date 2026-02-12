@@ -19,6 +19,7 @@ import javax.inject.Singleton
 
 @Singleton
 class Classifier @Inject constructor(@ApplicationContext private val context: Context) {
+    var onResultListener: ((List<Detection>) -> Unit)? = null
     private var interpreter: Interpreter
     private var inputImageWidth: Int
     private var inputImageHeight: Int
@@ -150,12 +151,13 @@ class Classifier @Inject constructor(@ApplicationContext private val context: Co
             val right = (cx + w / 2f).coerceIn(0f, 1f)
             val bottom = (cy + h / 2f).coerceIn(0f, 1f)
             val boxN = RectF(left, top, right, bottom)
-            detections.add(Detection(boxN, bestClass, score))
+            detections.add(Detection(boxN, bestClass, score, 0.00))
         }
         val sorted = detections.sortedByDescending { it.confidence }
         val topK = sorted.take(200)
         val final = nonMaxSuppression(topK, 0.45f)
             .sortedByDescending { it.confidence }
+        onResultListener?.invoke(final)
         for (d in final) {
             Log.d(
                 "YOLO",
