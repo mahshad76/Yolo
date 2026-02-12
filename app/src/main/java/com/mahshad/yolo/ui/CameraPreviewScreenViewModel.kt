@@ -23,7 +23,7 @@ class CameraPreviewScreenViewModel @Inject constructor(
     val surfaceRequest: StateFlow<SurfaceRequest?> = _surfaceRequest
 
     private val _detectedBoxes = MutableStateFlow<List<Detection>>(emptyList())
-    val detectionBoxes: StateFlow<List<Detection>> = _detectedBoxes.asStateFlow()
+    val detectedBoxes: StateFlow<List<Detection>> = _detectedBoxes.asStateFlow()
 
     val imageAnalysis = ImageAnalysis.Builder()
         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
@@ -37,5 +37,9 @@ class CameraPreviewScreenViewModel @Inject constructor(
 
     fun setAnalyzer() {
         imageAnalysis.setAnalyzer(Executors.newSingleThreadExecutor(), objectDetectorAnalyzer)
+    }
+
+    fun updateDetectedBoxes(detectedBoxes: List<Detection>) {
+        _detectedBoxes.value = detectedBoxes
     }
 }
